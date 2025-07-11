@@ -1,0 +1,54 @@
+.colorPicker {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-primary);
+}
+
+.colorInput {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.colorPreview {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--border-radius);
+  border: 2px solid var(--border-color);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  
+  &:hover {
+    border-color: var(--border-focus);
+  }
+}
+
+.colorInputField {
+  flex: 1;
+  padding: var(--spacing-sm);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  font-size: var(--font-size-sm);
+  font-family: 'Courier New', monospace;
+  color: var(--text-primary);
+  background-color: var(--background-color);
+  transition: all var(--transition-fast);
+  
+  &:focus {
+    outline: none;
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+}
+
+.hiddenInput {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
