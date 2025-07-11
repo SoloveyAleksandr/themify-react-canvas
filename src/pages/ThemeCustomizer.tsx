@@ -5,65 +5,79 @@ import { ColorPicker } from '../components/ColorPicker/ColorPicker';
 import '../styles/global.scss';
 
 const ThemeCustomizer: React.FC = () => {
-  const { theme, updateTheme, resetTheme, toggleMode } = useTheme();
+  const { 
+    appTheme, 
+    currentTheme, 
+    updateLightTheme, 
+    updateDarkTheme, 
+    toggleMode, 
+    resetThemes, 
+    resetCurrentTheme 
+  } = useTheme();
+  
   const [activeTab, setActiveTab] = useState<'colors' | 'typography' | 'spacing'>('colors');
+
+  // Определяем, какую тему мы редактируем
+  const isLightMode = appTheme.currentMode === 'light';
+  const editingTheme = isLightMode ? appTheme.lightTheme : appTheme.darkTheme;
+  const updateCurrentTheme = isLightMode ? updateLightTheme : updateDarkTheme;
 
   const colorGroups = [
     {
       title: 'Основные цвета',
       colors: [
-        { key: 'primaryColor', label: 'Основной цвет', value: theme.primaryColor },
-        { key: 'primaryLight', label: 'Основной светлый', value: theme.primaryLight },
-        { key: 'primaryDark', label: 'Основной темный', value: theme.primaryDark },
+        { key: 'primaryColor', label: 'Основной цвет', value: editingTheme.primaryColor },
+        { key: 'primaryLight', label: 'Основной светлый', value: editingTheme.primaryLight },
+        { key: 'primaryDark', label: 'Основной темный', value: editingTheme.primaryDark },
       ]
     },
     {
       title: 'Вторичные цвета',
       colors: [
-        { key: 'secondaryColor', label: 'Вторичный цвет', value: theme.secondaryColor },
-        { key: 'secondaryLight', label: 'Вторичный светлый', value: theme.secondaryLight },
-        { key: 'secondaryDark', label: 'Вторичный темный', value: theme.secondaryDark },
+        { key: 'secondaryColor', label: 'Вторичный цвет', value: editingTheme.secondaryColor },
+        { key: 'secondaryLight', label: 'Вторичный светлый', value: editingTheme.secondaryLight },
+        { key: 'secondaryDark', label: 'Вторичный темный', value: editingTheme.secondaryDark },
       ]
     },
     {
       title: 'Статусные цвета',
       colors: [
-        { key: 'successColor', label: 'Успех', value: theme.successColor },
-        { key: 'warningColor', label: 'Предупреждение', value: theme.warningColor },
-        { key: 'errorColor', label: 'Ошибка', value: theme.errorColor },
+        { key: 'successColor', label: 'Успех', value: editingTheme.successColor },
+        { key: 'warningColor', label: 'Предупреждение', value: editingTheme.warningColor },
+        { key: 'errorColor', label: 'Ошибка', value: editingTheme.errorColor },
       ]
     },
     {
       title: 'Фон и поверхности',
       colors: [
-        { key: 'backgroundColor', label: 'Фон', value: theme.backgroundColor },
-        { key: 'surfaceColor', label: 'Поверхность', value: theme.surfaceColor },
-        { key: 'surfaceHover', label: 'Поверхность при наведении', value: theme.surfaceHover },
+        { key: 'backgroundColor', label: 'Фон', value: editingTheme.backgroundColor },
+        { key: 'surfaceColor', label: 'Поверхность', value: editingTheme.surfaceColor },
+        { key: 'surfaceHover', label: 'Поверхность при наведении', value: editingTheme.surfaceHover },
       ]
     },
     {
       title: 'Текст',
       colors: [
-        { key: 'textPrimary', label: 'Основной текст', value: theme.textPrimary },
-        { key: 'textSecondary', label: 'Вторичный текст', value: theme.textSecondary },
-        { key: 'textDisabled', label: 'Отключенный текст', value: theme.textDisabled },
+        { key: 'textPrimary', label: 'Основной текст', value: editingTheme.textPrimary },
+        { key: 'textSecondary', label: 'Вторичный текст', value: editingTheme.textSecondary },
+        { key: 'textDisabled', label: 'Отключенный текст', value: editingTheme.textDisabled },
       ]
     },
     {
       title: 'Границы',
       colors: [
-        { key: 'borderColor', label: 'Граница', value: theme.borderColor },
-        { key: 'borderFocus', label: 'Граница в фокусе', value: theme.borderFocus },
+        { key: 'borderColor', label: 'Граница', value: editingTheme.borderColor },
+        { key: 'borderFocus', label: 'Граница в фокусе', value: editingTheme.borderFocus },
       ]
     }
   ];
 
   const handleColorChange = (key: string, value: string) => {
-    updateTheme({ [key]: value });
+    updateCurrentTheme({ [key]: value });
   };
 
   const handleInputChange = (key: string, value: string) => {
-    updateTheme({ [key]: value });
+    updateCurrentTheme({ [key]: value });
   };
 
   return (
@@ -73,7 +87,7 @@ const ThemeCustomizer: React.FC = () => {
           Настройка темы приложения
         </Typography>
         <Typography variant="body1" color="secondary" align="center">
-          Измените цвета, типографику и размеры для создания уникальной темы
+          Настройте светлую и темную темы независимо друг от друга
         </Typography>
       </div>
 
@@ -81,20 +95,37 @@ const ThemeCustomizer: React.FC = () => {
       <div className="flex justify-between items-center" style={{ marginBottom: '2rem' }}>
         <div className="flex gap-md">
           <Button 
-            variant={theme.mode === 'light' ? 'primary' : 'secondary'} 
+            variant={isLightMode ? 'primary' : 'secondary'} 
             onClick={toggleMode}
           >
-            {theme.mode === 'light' ? '🌙 Темная тема' : '☀️ Светлая тема'}
+            {isLightMode ? '🌙 Переключить на темную' : '☀️ Переключить на светлую'}
+          </Button>
+          <div style={{ 
+            padding: '0.5rem 1rem', 
+            backgroundColor: 'var(--surface-color)',
+            borderRadius: 'var(--border-radius)',
+            border: '1px solid var(--border-color)'
+          }}>
+            <Typography variant="body2" color="secondary">
+              Редактируется: {isLightMode ? 'Светлая тема' : 'Темная тема'}
+            </Typography>
+          </div>
+        </div>
+        <div className="flex gap-sm">
+          <Button variant="ghost" onClick={resetCurrentTheme}>
+            Сбросить текущую тему
+          </Button>
+          <Button variant="ghost" onClick={resetThemes}>
+            Сбросить все темы
           </Button>
         </div>
-        <Button variant="ghost" onClick={resetTheme}>
-          Сбросить настройки
-        </Button>
       </div>
 
       {/* Демонстрационная область */}
       <Card spacing="spacious" style={{ marginBottom: '2rem' }}>
-        <Typography variant="h3" gutterBottom>Демонстрация компонентов</Typography>
+        <Typography variant="h3" gutterBottom>
+          Демонстрация компонентов ({isLightMode ? 'светлая тема' : 'темная тема'})
+        </Typography>
         
         <div className="flex gap-md" style={{ marginBottom: '1rem' }}>
           <Button variant="primary">Основная кнопка</Button>
@@ -119,6 +150,23 @@ const ThemeCustomizer: React.FC = () => {
           </Typography>
           <Typography variant="body2" color="secondary">
             Вторичный текст меньшего размера.
+          </Typography>
+        </div>
+
+        {/* Показываем предпросмотр другой темы */}
+        <div style={{ 
+          marginTop: '1.5rem', 
+          padding: '1rem',
+          backgroundColor: isLightMode ? appTheme.darkTheme.backgroundColor : appTheme.lightTheme.backgroundColor,
+          color: isLightMode ? appTheme.darkTheme.textPrimary : appTheme.lightTheme.textPrimary,
+          borderRadius: 'var(--border-radius)',
+          border: '1px solid var(--border-color)'
+        }}>
+          <Typography variant="h5" style={{ marginBottom: '0.5rem' }}>
+            Предпросмотр {isLightMode ? 'темной' : 'светлой'} темы
+          </Typography>
+          <Typography variant="body2">
+            Так будет выглядеть другая тема при переключении
           </Typography>
         </div>
       </Card>
@@ -173,7 +221,7 @@ const ThemeCustomizer: React.FC = () => {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <Input
                 label="Базовый размер шрифта"
-                value={theme.fontSize}
+                value={editingTheme.fontSize}
                 onChange={(e) => handleInputChange('fontSize', e.target.value)}
                 placeholder="1rem"
               />
@@ -185,7 +233,7 @@ const ThemeCustomizer: React.FC = () => {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <Input
                 label="Обычный вес шрифта"
-                value={theme.fontWeight}
+                value={editingTheme.fontWeight}
                 onChange={(e) => handleInputChange('fontWeight', e.target.value)}
                 placeholder="400"
               />
@@ -201,13 +249,13 @@ const ThemeCustomizer: React.FC = () => {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <Input
                 label="Базовое скругление"
-                value={theme.borderRadius}
+                value={editingTheme.borderRadius}
                 onChange={(e) => handleInputChange('borderRadius', e.target.value)}
                 placeholder="0.375rem"
               />
               <Input
                 label="Большое скругление"
-                value={theme.borderRadiusLg}
+                value={editingTheme.borderRadiusLg}
                 onChange={(e) => handleInputChange('borderRadiusLg', e.target.value)}
                 placeholder="0.5rem"
               />

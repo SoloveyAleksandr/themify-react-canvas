@@ -35,12 +35,15 @@ export interface ThemeConfig {
   // Шрифты
   fontSize: string;
   fontWeight: string;
-  
-  // Тема (light/dark)
-  mode: 'light' | 'dark';
 }
 
-const defaultTheme: ThemeConfig = {
+export interface AppTheme {
+  lightTheme: ThemeConfig;
+  darkTheme: ThemeConfig;
+  currentMode: 'light' | 'dark';
+}
+
+const defaultLightTheme: ThemeConfig = {
   primaryColor: '#2563eb',
   primaryLight: '#3b82f6',
   primaryDark: '#1d4ed8',
@@ -69,12 +72,21 @@ const defaultTheme: ThemeConfig = {
   
   fontSize: '1rem',
   fontWeight: '400',
-  
-  mode: 'light'
 };
 
-const darkTheme: ThemeConfig = {
-  ...defaultTheme,
+const defaultDarkTheme: ThemeConfig = {
+  primaryColor: '#3b82f6',
+  primaryLight: '#60a5fa',
+  primaryDark: '#2563eb',
+  
+  secondaryColor: '#94a3b8',
+  secondaryLight: '#cbd5e1',
+  secondaryDark: '#64748b',
+  
+  successColor: '#10b981',
+  warningColor: '#f59e0b',
+  errorColor: '#ef4444',
+  
   backgroundColor: '#0f172a',
   surfaceColor: '#1e293b',
   surfaceHover: '#334155',
@@ -86,14 +98,28 @@ const darkTheme: ThemeConfig = {
   borderColor: '#334155',
   borderFocus: '#60a5fa',
   
-  mode: 'dark'
+  borderRadius: '0.375rem',
+  borderRadiusLg: '0.5rem',
+  
+  fontSize: '1rem',
+  fontWeight: '400',
+};
+
+const defaultAppTheme: AppTheme = {
+  lightTheme: defaultLightTheme,
+  darkTheme: defaultDarkTheme,
+  currentMode: 'light'
 };
 
 interface ThemeContextType {
-  theme: ThemeConfig;
-  updateTheme: (newTheme: Partial<ThemeConfig>) => void;
-  resetTheme: () => void;
+  appTheme: AppTheme;
+  currentTheme: ThemeConfig;
+  updateLightTheme: (newTheme: Partial<ThemeConfig>) => void;
+  updateDarkTheme: (newTheme: Partial<ThemeConfig>) => void;
+  setMode: (mode: 'light' | 'dark') => void;
   toggleMode: () => void;
+  resetThemes: () => void;
+  resetCurrentTheme: () => void;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -111,76 +137,117 @@ interface ThemeProviderProps {
 }
 
 export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
-  const [theme, setTheme] = useState<ThemeConfig>(() => {
+  const [appTheme, setAppTheme] = useState<AppTheme>(() => {
     const savedTheme = localStorage.getItem('app-theme');
     if (savedTheme) {
       try {
-        return JSON.parse(savedTheme);
+        const parsed = JSON.parse(savedTheme);
+        // Проверяем, что у нас есть необходимые поля
+        if (parsed.lightTheme && parsed.darkTheme && parsed.currentMode) {
+          return parsed;
+        }
       } catch {
-        return defaultTheme;
+        // Если ошибка парсинга, используем дефолтную тему
       }
     }
-    return defaultTheme;
+    return defaultAppTheme;
   });
+
+  const currentTheme = appTheme.currentMode === 'light' ? appTheme.lightTheme : appTheme.darkTheme;
 
   // Применение CSS переменных
   useEffect(() => {
     const root = document.documentElement;
     
-    root.style.setProperty('--primary-color', theme.primaryColor);
-    root.style.setProperty('--primary-light', theme.primaryLight);
-    root.style.setProperty('--primary-dark', theme.primaryDark);
+    root.style.setProperty('--primary-color', currentTheme.primaryColor);
+    root.style.setProperty('--primary-light', currentTheme.primaryLight);
+    root.style.setProperty('--primary-dark', currentTheme.primaryDark);
     
-    root.style.setProperty('--secondary-color', theme.secondaryColor);
-    root.style.setProperty('--secondary-light', theme.secondaryLight);
-    root.style.setProperty('--secondary-dark', theme.secondaryDark);
+    root.style.setProperty('--secondary-color', currentTheme.secondaryColor);
+    root.style.setProperty('--secondary-light', currentTheme.secondaryLight);
+    root.style.setProperty('--secondary-dark', currentTheme.secondaryDark);
     
-    root.style.setProperty('--success-color', theme.successColor);
-    root.style.setProperty('--warning-color', theme.warningColor);
-    root.style.setProperty('--error-color', theme.errorColor);
+    root.style.setProperty('--success-color', currentTheme.successColor);
+    root.style.setProperty('--warning-color', currentTheme.warningColor);
+    root.style.setProperty('--error-color', currentTheme.errorColor);
     
-    root.style.setProperty('--background-color', theme.backgroundColor);
-    root.style.setProperty('--surface-color', theme.surfaceColor);
-    root.style.setProperty('--surface-hover', theme.surfaceHover);
+    root.style.setProperty('--background-color', currentTheme.backgroundColor);
+    root.style.setProperty('--surface-color', currentTheme.surfaceColor);
+    root.style.setProperty('--surface-hover', currentTheme.surfaceHover);
     
-    root.style.setProperty('--text-primary', theme.textPrimary);
-    root.style.setProperty('--text-secondary', theme.textSecondary);
-    root.style.setProperty('--text-disabled', theme.textDisabled);
+    root.style.setProperty('--text-primary', currentTheme.textPrimary);
+    root.style.setProperty('--text-secondary', currentTheme.textSecondary);
+    root.style.setProperty('--text-disabled', currentTheme.textDisabled);
     
-    root.style.setProperty('--border-color', theme.borderColor);
-    root.style.setProperty('--border-focus', theme.borderFocus);
+    root.style.setProperty('--border-color', currentTheme.borderColor);
+    root.style.setProperty('--border-focus', currentTheme.borderFocus);
     
-    root.style.setProperty('--border-radius', theme.borderRadius);
-    root.style.setProperty('--border-radius-lg', theme.borderRadiusLg);
+    root.style.setProperty('--border-radius', currentTheme.borderRadius);
+    root.style.setProperty('--border-radius-lg', currentTheme.borderRadiusLg);
     
-    root.style.setProperty('--font-size-base', theme.fontSize);
-    root.style.setProperty('--font-weight-normal', theme.fontWeight);
+    root.style.setProperty('--font-size-base', currentTheme.fontSize);
+    root.style.setProperty('--font-weight-normal', currentTheme.fontWeight);
     
     // Устанавливаем data-theme атрибут
-    document.documentElement.setAttribute('data-theme', theme.mode);
-  }, [theme]);
+    document.documentElement.setAttribute('data-theme', appTheme.currentMode);
+  }, [currentTheme, appTheme.currentMode]);
 
   // Сохранение в localStorage
   useEffect(() => {
-    localStorage.setItem('app-theme', JSON.stringify(theme));
-  }, [theme]);
+    localStorage.setItem('app-theme', JSON.stringify(appTheme));
+  }, [appTheme]);
 
-  const updateTheme = (newTheme: Partial<ThemeConfig>) => {
-    setTheme(prev => ({ ...prev, ...newTheme }));
+  const updateLightTheme = (newTheme: Partial<ThemeConfig>) => {
+    setAppTheme(prev => ({
+      ...prev,
+      lightTheme: { ...prev.lightTheme, ...newTheme }
+    }));
   };
 
-  const resetTheme = () => {
-    setTheme(defaultTheme);
+  const updateDarkTheme = (newTheme: Partial<ThemeConfig>) => {
+    setAppTheme(prev => ({
+      ...prev,
+      darkTheme: { ...prev.darkTheme, ...newTheme }
+    }));
+  };
+
+  const setMode = (mode: 'light' | 'dark') => {
+    setAppTheme(prev => ({
+      ...prev,
+      currentMode: mode
+    }));
   };
 
   const toggleMode = () => {
-    const newMode = theme.mode === 'light' ? 'dark' : 'light';
-    const baseTheme = newMode === 'dark' ? darkTheme : defaultTheme;
-    setTheme(prev => ({ ...baseTheme, ...prev, mode: newMode }));
+    setAppTheme(prev => ({
+      ...prev,
+      currentMode: prev.currentMode === 'light' ? 'dark' : 'light'
+    }));
+  };
+
+  const resetThemes = () => {
+    setAppTheme(defaultAppTheme);
+  };
+
+  const resetCurrentTheme = () => {
+    if (appTheme.currentMode === 'light') {
+      updateLightTheme(defaultLightTheme);
+    } else {
+      updateDarkTheme(defaultDarkTheme);
+    }
   };
 
   return (
-    <ThemeContext.Provider value={{ theme, updateTheme, resetTheme, toggleMode }}>
+    <ThemeContext.Provider value={{
+      appTheme,
+      currentTheme,
+      updateLightTheme,
+      updateDarkTheme,
+      setMode,
+      toggleMode,
+      resetThemes,
+      resetCurrentTheme
+    }}>
       {children}
     </ThemeContext.Provider>
   );
