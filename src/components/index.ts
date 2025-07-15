@@ -9,3 +9,5 @@ export type { TypographyVariant, TypographyColor, TypographyAlign } from './Typo
 
 export { Card } from './Card/Card';
 export type { CardSpacing } from './Card/Card';
+
+export { AuthModal } from './AuthModal/AuthModal';

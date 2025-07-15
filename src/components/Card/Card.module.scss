@@ -48,6 +48,12 @@
   }
 }
 
+.large {
+  .content {
+    padding: var(--spacing-xxl);
+  }
+}
+
 .header {
   padding: var(--spacing-lg);
   border-bottom: 1px solid var(--border-color);

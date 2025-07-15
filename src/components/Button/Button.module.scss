@@ -104,6 +104,21 @@
   }
 }
 
+.outline {
+  background-color: transparent;
+  color: var(--primary-color);
+  border-color: var(--primary-color);
+  
+  &:hover:not(:disabled) {
+    background-color: var(--primary-color);
+    color: white;
+  }
+  
+  &:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+}
+
 // Размеры
 .small {
   padding: var(--spacing-xs) var(--spacing-sm);

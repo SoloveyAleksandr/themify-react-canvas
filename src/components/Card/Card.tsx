@@ -1,7 +1,7 @@
 import React, { ReactNode } from 'react';
 import styles from './Card.module.scss';
 
-export type CardSpacing = 'compact' | 'normal' | 'spacious';
+export type CardSpacing = 'compact' | 'normal' | 'spacious' | 'large';
 
 interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   children: ReactNode;

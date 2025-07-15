@@ -58,10 +58,26 @@
   font-weight: var(--font-weight-normal);
 }
 
-.caption {
+.body1 {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-normal);
+}
+
+.body {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-normal);
+}
+
+.caption,
+.small {
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-normal);
   color: var(--text-secondary);
+}
+
+.subtitle {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-medium);
 }
 
 .subtitle1 {

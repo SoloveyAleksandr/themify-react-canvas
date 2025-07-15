@@ -3,7 +3,7 @@ import styles from './Typography.module.scss';
 
 export type TypographyVariant = 
   | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
-  | 'body1' | 'body2' | 'subtitle1' | 'subtitle2' | 'caption';
+  | 'body' | 'body1' | 'body2' | 'subtitle' | 'subtitle1' | 'subtitle2' | 'caption' | 'small';
 
 export type TypographyColor = 
   | 'inherit' | 'primary' | 'secondary' | 'success' | 'warning' | 'error' | 'disabled';
